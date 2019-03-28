@@ -17,21 +17,15 @@ import java.util.List;
 
 public class CameraView implements SurfaceHolder.Callback {
 
-    //172.16.10.185
     public Camera mCamera = null;
-    private List<int[]> mSupportedFrameRate;
     private List<Camera.Size> mSupportedSizes;
 
-    public SurfaceView getmSurfaceView() {
-        return mSurfaceView;
-    }
 
     private SurfaceView mSurfaceView = null;
     private SurfaceHolder mSurfaceHolder = null;
     private Camera.Size procSize_;
     private CameraReadyCallback mCameraReadyCallback = null;
     private boolean isCameraOpen;
-    private String cameraOpenExceptionStr;
     private Camera.Parameters parameters;
     private int cameraId = 0;
 
@@ -63,25 +57,18 @@ public class CameraView implements SurfaceHolder.Callback {
         } catch (Exception e1) {
             e1.printStackTrace();
             isCameraOpen = false;
-            cameraOpenExceptionStr = e1.getMessage();
 
         }
-        procSize_ = mCamera.new Size(0, 0);
         parameters = mCamera.getParameters();
 
         //设置预览方向
         mCamera.setDisplayOrientation(90);
-
-        mSupportedFrameRate = parameters.getSupportedPreviewFpsRange();
         mSupportedSizes = parameters.getSupportedPreviewSizes();
-        procSize_ = mSupportedSizes.get(mSupportedSizes.size() / 2);
         //预览大小
-        parameters.setPreviewSize(procSize_.width, procSize_.height);
         parameters.setPreviewSize(640, 480);
-        //数据格式
+        //数据格式  NV21数据的所需空间大小(字节)＝宽 x 高 x 3 / 2 (y=WxH,u=WxH/4,v=WxH/4)
         parameters.setPreviewFormat(ImageFormat.NV21);
         mCamera.setParameters(parameters);
-
         try {
             mCamera.setPreviewDisplay(mSurfaceHolder);
         } catch (IOException e) {
@@ -98,7 +85,7 @@ public class CameraView implements SurfaceHolder.Callback {
      */
     public void switchCamera() {
         CameraInfo cameraInfo = new CameraInfo();
-        Log.i("jw", "number:" + Camera.getNumberOfCameras());
+        Log.d("Camera", "number:" + Camera.getNumberOfCameras());
         for (int i = 0; i < Camera.getNumberOfCameras(); i++) {
             Camera.getCameraInfo(i, cameraInfo);
             if (cameraInfo.facing == CameraInfo.CAMERA_FACING_FRONT) {

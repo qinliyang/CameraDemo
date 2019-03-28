@@ -5,20 +5,23 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     tools:context=".MainActivity">
+
     <SurfaceView
         android:id="@+id/sfv"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
-<TextView
+        android:layout_height="500dp" />
+
+    <TextView
         android:id="@+id/tvF"
         android:layout_width="match_parent"
         android:layout_height="20dp"
-        android:text="打开前置摄像头" />
+        android:text="" />
 
     <TextView
         android:id="@+id/tvB"
         android:layout_width="match_parent"
         android:layout_height="20dp"
-        android:text="打开后置摄像头" />
+        android:text="" />
+
 
 </LinearLayout>

@@ -152,12 +152,8 @@ public class AvcEncoder {
                                     System.arraycopy(configbyte, 0, keyframe, 0, configbyte.length);
                                     System.arraycopy(outData, 0, keyframe, configbyte.length, outData.length);
                                     outputStream.write(keyframe, 0, keyframe.length);
-
-                                    LiveNative.PushEncodeData(keyframe, keyframe.length, bufferInfo.presentationTimeUs);
                                 } else {
                                     outputStream.write(outData, 0, outData.length);
-
-                                    LiveNative.PushEncodeData(outData, outData.length, bufferInfo.presentationTimeUs);
                                 }
 
                                 mediaCodec.releaseOutputBuffer(outputBufferIndex, false);
