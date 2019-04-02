@@ -14,7 +14,9 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 
 
-
+/**
+ * 编码器
+ */
 public class AvcEncoder {
     private final static String TAG = "MeidaCodec";
     private byte[] yuv420;
@@ -39,8 +41,7 @@ public class AvcEncoder {
         yuv420 = new byte[getYuvBuffer(width, height)];
 
         MediaFormat mediaFormat = MediaFormat.createVideoFormat("video/avc", width, height);
-        //如果你需要旋转90度或者270度，那么需要把宽和高对调。否则会花屏。因为比如你320 X 240，图像旋转90°之后宽高变成了240 X 320。
-//		MediaFormat mediaFormat = MediaFormat.createVideoFormat("video/avc", height, width);
+        //如果你需要旋转90度或者270度，那么需要把宽和高对调。否则会花屏
         mediaFormat.setInteger(MediaFormat.KEY_COLOR_FORMAT, MediaCodecInfo.CodecCapabilities.COLOR_FormatYUV420SemiPlanar);
         mediaFormat.setInteger(MediaFormat.KEY_BIT_RATE, width * height * 5);
         mediaFormat.setInteger(MediaFormat.KEY_FRAME_RATE, 30);
@@ -151,8 +152,10 @@ public class AvcEncoder {
                                     byte[] keyframe = new byte[bufferInfo.size + configbyte.length];
                                     System.arraycopy(configbyte, 0, keyframe, 0, configbyte.length);
                                     System.arraycopy(outData, 0, keyframe, configbyte.length, outData.length);
+                                    //在这里推流
                                     outputStream.write(keyframe, 0, keyframe.length);
                                 } else {
+                                    //在这里推流
                                     outputStream.write(outData, 0, outData.length);
                                 }
 

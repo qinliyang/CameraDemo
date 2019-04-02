@@ -2,6 +2,14 @@ package com.demo.aswitch.camerademo;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.ImageFormat;
+import android.graphics.Paint;
+import android.graphics.Rect;
+import android.graphics.YuvImage;
 import android.hardware.Camera;
 import android.hardware.Camera.PreviewCallback;
 import android.media.AudioFormat;
@@ -9,8 +17,10 @@ import android.media.AudioRecord;
 import android.media.MediaCodec;
 import android.media.MediaRecorder;
 import android.util.Log;
+import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
+import java.io.ByteArrayOutputStream;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -20,21 +30,18 @@ import java.util.concurrent.locks.ReentrantLock;
 public class CameraHelper {
     public static final String TAG = "CameraHelper";
     private Context mContext;
+
     private int mPictureWidth = 640;
     private int mPictureHeight = 480;
-    private float mCameraFrameRates = 40.0f;
 
+    private float mCameraFrameRates = 40.0f;
     private int mMediaBlockNumber = 3;
     private int mMediaBlockSize = 1024 * 512;
-    private int voice_rate = 8000;
-    boolean inProcessing = false;
     private int VideoType;
-
 
     private CameraView mCameraView = null;
     private ExecutorService mExecutorService = Executors.newFixedThreadPool(3);
     private ReentrantLock previewLock = new ReentrantLock();
-    byte[] yuvFrame = new byte[getYuvBuffer(640, 480)];
     MediaBlock[] mMediaBlocks = new MediaBlock[mMediaBlockNumber];
     int mediaWriteIndex = 0, mediaReadIndex = 0;
     private static CameraHelper instance = new CameraHelper();
@@ -42,6 +49,7 @@ public class CameraHelper {
     private AvcEncoder avcCodec;
     private int fps = 10;  //帧率
     private int bitrate = 12500; //码率
+    private Paint paint;
 
     private CameraHelper() {
     }
@@ -62,7 +70,6 @@ public class CameraHelper {
     public void initCamera(Context context, SurfaceView captureView, int VideoType) {
         mContext = context;
         this.VideoType = VideoType;
-        ;
         resetMediaBuffer();
         // 初始化配置信息
         mCameraView = new CameraView(captureView, VideoType);
@@ -85,6 +92,10 @@ public class CameraHelper {
         mCameraView.switchCamera();
     }
 
+    public void setOnOrOff(int type) {
+        mCameraView.setOnOrOff(mCameraView.parameters, type);
+    }
+
     private static int yuvqueuesize = 10;
     public static ArrayBlockingQueue<byte[]> YUVQueue = new ArrayBlockingQueue<byte[]>(yuvqueuesize);
     /**
@@ -93,8 +104,6 @@ public class CameraHelper {
     public PreviewCallback previewCb = new PreviewCallback() {
         public void onPreviewFrame(byte[] frame, Camera c) {
             previewLock.lock();
-            Log.d(TAG, "onPreviewFrame: " + frame.toString());
-
             putYUVData(frame, frame.length);//硬编码
             c.addCallbackBuffer(frame);//这里要添加一次缓冲，否则onPreviewFrame可能不会再被回调
             previewLock.unlock();
@@ -132,5 +141,4 @@ public class CameraHelper {
             mCameraView = null;
         }
     }
-
 }

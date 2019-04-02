@@ -21,12 +21,12 @@ public class CameraView implements SurfaceHolder.Callback {
     private List<Camera.Size> mSupportedSizes;
 
 
-    private SurfaceView mSurfaceView = null;
-    private SurfaceHolder mSurfaceHolder = null;
+    public SurfaceView mSurfaceView = null;
+    public SurfaceHolder mSurfaceHolder = null;
     private Camera.Size procSize_;
     private CameraReadyCallback mCameraReadyCallback = null;
     private boolean isCameraOpen;
-    private Camera.Parameters parameters;
+    public Camera.Parameters parameters;
     private int cameraId = 0;
 
 
@@ -42,7 +42,6 @@ public class CameraView implements SurfaceHolder.Callback {
             cameraId = 0;
         }
     }
-
 
 
     @SuppressWarnings("deprecation")
@@ -63,11 +62,18 @@ public class CameraView implements SurfaceHolder.Callback {
 
         //设置预览方向
         mCamera.setDisplayOrientation(90);
+
+        // 加了水印的预览窗口也需要改变大小
+        if (mSurfaceView != null) {
+            mSurfaceView.getHolder().setFixedSize(640, 480);
+        }
+
         mSupportedSizes = parameters.getSupportedPreviewSizes();
         //预览大小
         parameters.setPreviewSize(640, 480);
         //数据格式  NV21数据的所需空间大小(字节)＝宽 x 高 x 3 / 2 (y=WxH,u=WxH/4,v=WxH/4)
         parameters.setPreviewFormat(ImageFormat.NV21);
+        setOnOrOff(parameters,0);
         mCamera.setParameters(parameters);
         try {
             mCamera.setPreviewDisplay(mSurfaceHolder);
@@ -78,6 +84,17 @@ public class CameraView implements SurfaceHolder.Callback {
 
         mCamera.startPreview();
 
+    }
+
+    public void setOnOrOff(Camera.Parameters parameters, int type) {
+        if (type == 0)
+            parameters.setFlashMode(Camera.Parameters.FLASH_MODE_ON);
+        if (type == 1)
+            parameters.setFlashMode(Camera.Parameters.FLASH_MODE_OFF);
+        if (type == 2)
+            parameters.setFlashMode(Camera.Parameters.FLASH_MODE_TORCH);
+
+        mCamera.setParameters(parameters);
     }
 
     /*

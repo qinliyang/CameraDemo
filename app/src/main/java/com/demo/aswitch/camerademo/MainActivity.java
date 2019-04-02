@@ -2,17 +2,21 @@ package com.demo.aswitch.camerademo;
 
 import android.Manifest;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Camera;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.view.SurfaceView;
+import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -20,6 +24,9 @@ public class MainActivity extends AppCompatActivity {
     private TextView tvB;
     private SurfaceView sfv;
     private static final int REQUEST_CAMERA_PERMISSIONS = 931;
+    private TextView tvA;
+    private TextView tvC;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -40,31 +47,59 @@ public class MainActivity extends AppCompatActivity {
             }
             if (!permissionsToRequest.isEmpty()) {
                 ActivityCompat.requestPermissions(this, permissionsToRequest.toArray(new String[permissionsToRequest.size()]), REQUEST_CAMERA_PERMISSIONS);
-            }else{
+            } else {
 
                 if (checkCameraHardware(this)) {
-                    CameraHelper.getInstance().initCamera(this, sfv,0);
-                }else{
-                    Toast.makeText(this,"没有摄像机硬件",Toast.LENGTH_SHORT);
+                    CameraHelper.getInstance().initCamera(this, sfv, 0);
+                } else {
+                    Toast.makeText(this, "没有摄像机硬件", Toast.LENGTH_SHORT);
                 }
 
             }
-        }else{
-            CameraHelper.getInstance().initCamera(this, sfv,0);
+        } else {
+            CameraHelper.getInstance().initCamera(this, sfv, 0);
         }
 
     }
 
+    int type = 0;
+
     private void initView() {
-        tvF = (TextView) findViewById(R.id.tvF);
+        tvA = (TextView) findViewById(R.id.tvA);
         tvB = (TextView) findViewById(R.id.tvB);
+        tvC = (TextView) findViewById(R.id.tvC);
         sfv = (SurfaceView) findViewById(R.id.sfv);
+
+        tvA.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(MainActivity.this, InfoActivity.class);
+                startActivity(intent);
+            }
+        });
+        tvB.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                CameraHelper.getInstance().switchCamera();
+            }
+        });
+
+        tvC.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                type = 2 - type;
+                CameraHelper.getInstance().setOnOrOff(type);
+                tvC.setText(type == 2 ? "闪光灯已打开" : "闪光灯已关闭");
+            }
+        });
 
     }
 
-    /** Check if this device has a camera */
+    /**
+     * Check if this device has a camera
+     */
     private boolean checkCameraHardware(Context context) {
-        if (context.getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA)){
+        if (context.getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA)) {
             return true;
         } else {
             return false;
